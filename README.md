@@ -1,4 +1,4 @@
-# Chapter 1 - Databases 
+# Chapter 4 - Databases 
 ## Set and export your default region 
 export AWS_REGION=us-east-1
 ## Set your AWS ACCOUNT ID 
