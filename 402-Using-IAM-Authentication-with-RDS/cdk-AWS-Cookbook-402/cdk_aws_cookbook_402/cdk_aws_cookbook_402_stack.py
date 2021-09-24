@@ -1,23 +1,26 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_s3 as s3,
     aws_s3_deployment,
     aws_rds as rds,
     aws_iam as iam,
-    core,
+    Stack,
+    CfnOutput,
+    RemovalPolicy
 )
 
 
-class CdkAwsCookbook402Stack(core.Stack):
+class CdkAwsCookbook402Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # create s3 bucket
         s3_Bucket = s3.Bucket(
             self,
             "AWS-Cookbook-Recipe-402",
-            removal_policy=core.RemovalPolicy.DESTROY
+            removal_policy=RemovalPolicy.DESTROY
         )
 
         aws_s3_deployment.BucketDeployment(
@@ -79,16 +82,18 @@ class CdkAwsCookbook402Stack(core.Stack):
         rds_instance = rds.DatabaseInstance(
             self,
             'DBInstance',
-            engine=rds.DatabaseInstanceEngine.MYSQL,
+            engine=rds.DatabaseInstanceEngine.mysql(
+                version=rds.MysqlEngineVersion.VER_8_0_23
+            ),
             instance_type=ec2.InstanceType("m5.large"),
             vpc=vpc,
             database_name='AWSCookbookRecipe402',
             instance_identifier='awscookbookrecipe402',
             delete_automated_backups=True,
             deletion_protection=False,
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             allocated_storage=8,
-            vpc_placement=ec2.SubnetSelection(
+            vpc_subnets=ec2.SubnetSelection(
                 one_per_az=False,
                 subnet_type=ec2.SubnetType.ISOLATED
             ),
@@ -146,9 +151,9 @@ class CdkAwsCookbook402Stack(core.Stack):
             vpc=vpc,
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'InstanceID',
+            'InstanceId',
             value=instance.instance_id
         )
         # -------- End EC2 Helper ---------
@@ -163,59 +168,58 @@ class CdkAwsCookbook402Stack(core.Stack):
 
         # outputs
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCId',
+            'VpcId',
             value=vpc.vpc_id
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsSecurityGroup',
             value=rds_security_group.security_group_id
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsDatabaseId',
             value=rds_instance.instance_identifier
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsEndpoint',
             value=rds_instance.db_instance_endpoint_address
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsPort',
             value=rds_instance.db_instance_endpoint_port
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'S3BucketName',
+            'BucketName',
             value=s3_Bucket.bucket_name
         )
 
         isolated_subnets = vpc.select_subnets(subnet_type=ec2.SubnetType.ISOLATED)
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'IsolatedSubnets',
             value=', '.join(map(str, isolated_subnets.subnet_ids))
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'EC2RoleName',
+            'InstanceRoleName',
             value=iam_role.role_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsSecretArn',
             value=rds_instance.secret.secret_full_arn
         )
-

@@ -1,3 +1,4 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_s3 as s3,
@@ -7,20 +8,24 @@ from aws_cdk import (
     aws_logs as logs,
     aws_lambda,
     custom_resources,
-    core,
+    Stack,
+    CfnOutput,
+    RemovalPolicy,
+    Duration
 )
 
 
-class CdkAwsCookbook404Stack(core.Stack):
+class CdkAwsCookbook404Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # create s3 bucket
         s3_Bucket = s3.Bucket(
             self,
             "AWS-Cookbook-Recipe-404",
-            removal_policy=core.RemovalPolicy.DESTROY
+            removal_policy=RemovalPolicy.DESTROY,
+            auto_delete_objects=True
         )
 
         aws_s3_deployment.BucketDeployment(
@@ -75,7 +80,9 @@ class CdkAwsCookbook404Stack(core.Stack):
         rds_instance = rds.DatabaseInstance(
             self,
             'DBInstance',
-            engine=rds.DatabaseInstanceEngine.MYSQL,
+            engine=rds.DatabaseInstanceEngine.mysql(
+                version=rds.MysqlEngineVersion.VER_8_0_23
+            ),
             instance_type=ec2.InstanceType("m5.large"),
             vpc=vpc,
             multi_az=False,
@@ -84,7 +91,7 @@ class CdkAwsCookbook404Stack(core.Stack):
             delete_automated_backups=True,
             deletion_protection=False,
             # iam_authentication=
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             allocated_storage=8,
             subnet_group=subnet_group
         )
@@ -134,7 +141,7 @@ class CdkAwsCookbook404Stack(core.Stack):
             layers=[sqlparse, pymysql, smartopen],
             memory_size=1024,
             runtime=aws_lambda.Runtime.PYTHON_3_8,
-            timeout=core.Duration.seconds(600),
+            timeout=Duration.seconds(600),
             vpc=vpc,
             vpc_subnets=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.ISOLATED
@@ -179,15 +186,14 @@ class CdkAwsCookbook404Stack(core.Stack):
 
         # outputs
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsSubnetGroup',
             value=subnet_group.subnet_group_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsDatabaseId',
             value=rds_instance.instance_identifier
         )
-

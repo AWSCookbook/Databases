@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from aws_cdk import core
+import aws_cdk as cdk
 
 from cdk_aws_cookbook_407.cdk_aws_cookbook_407_stack import CdkAwsCookbook407Stack
 
 
-app = core.App()
+app = cdk.App()
 CdkAwsCookbook407Stack(app, "cdk-aws-cookbook-407")
 
 app.synth()

@@ -1,14 +1,17 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_rds as rds,
     aws_iam as iam,
-    core,
+    Stack,
+    CfnOutput,
+    RemovalPolicy
 )
 
 
-class CdkAwsCookbook408Stack(core.Stack):
+class CdkAwsCookbook408Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         isolated_subnets = ec2.SubnetConfiguration(
@@ -37,7 +40,7 @@ class CdkAwsCookbook408Stack(core.Stack):
             default_database_name=database_name,
             # enable_data_api=True,
             deletion_protection=False,
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             vpc_subnets=ec2.SubnetSelection(
                 one_per_az=False,
                 subnet_type=ec2.SubnetType.ISOLATED
@@ -105,7 +108,7 @@ class CdkAwsCookbook408Stack(core.Stack):
             vpc=vpc,
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'InstanceID',
             value=instance.instance_id
@@ -114,39 +117,38 @@ class CdkAwsCookbook408Stack(core.Stack):
 
         # outputs
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCId',
+            'VpcId',
             value=vpc.vpc_id
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'SecretArn',
             value=rds_cluster.secret.secret_full_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'ClusterArn',
             value=rds_cluster.cluster_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'ClusterIdentifier',
             value=rds_cluster.cluster_identifier
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'DatabaseName',
             value=database_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'EC2RoleName',
+            'InstanceRoleName',
             value=instance.role.role_name
         )
-

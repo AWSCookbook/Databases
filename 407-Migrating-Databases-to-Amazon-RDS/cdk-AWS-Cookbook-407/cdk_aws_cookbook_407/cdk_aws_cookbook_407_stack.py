@@ -1,3 +1,4 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
     aws_s3 as s3,
@@ -5,20 +6,23 @@ from aws_cdk import (
     aws_iam as iam,
     aws_rds as rds,
     aws_lambda,
-    core,
+    Stack,
+    CfnOutput,
+    RemovalPolicy,
+    Duration
 )
 
 
-class CdkAwsCookbook407Stack(core.Stack):
+class CdkAwsCookbook407Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # create s3 bucket
         s3_Bucket = s3.Bucket(
             self,
             "AWS-Cookbook-Recipe-407",
-            removal_policy=core.RemovalPolicy.DESTROY
+            removal_policy=RemovalPolicy.DESTROY
         )
 
         aws_s3_deployment.BucketDeployment(
@@ -134,7 +138,7 @@ class CdkAwsCookbook407Stack(core.Stack):
             self,
             'source_rds_instance',
             engine=rds.DatabaseInstanceEngine.mysql(
-                version=rds.MysqlEngineVersion.VER_5_7_26
+                version=rds.MysqlEngineVersion.VER_5_7_33
             ),
             instance_type=ec2.InstanceType("m5.large"),
             vpc=vpc,
@@ -144,7 +148,7 @@ class CdkAwsCookbook407Stack(core.Stack):
             delete_automated_backups=True,
             deletion_protection=False,
             # iam_authentication=
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             allocated_storage=8,
             subnet_group=subnet_group,
             security_groups=[source_rds_security_group]
@@ -177,7 +181,7 @@ class CdkAwsCookbook407Stack(core.Stack):
             delete_automated_backups=True,
             deletion_protection=False,
             # iam_authentication=
-            removal_policy=core.RemovalPolicy.DESTROY,
+            removal_policy=RemovalPolicy.DESTROY,
             allocated_storage=8,
             subnet_group=subnet_group,
             security_groups=[target_rds_security_group]
@@ -231,7 +235,7 @@ class CdkAwsCookbook407Stack(core.Stack):
             layers=[sqlparse, pymysql, smartopen],
             memory_size=1024,
             runtime=aws_lambda.Runtime.PYTHON_3_8,
-            timeout=core.Duration.seconds(600),
+            timeout=Duration.seconds(600),
             vpc=vpc,
             vpc_subnets=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.ISOLATED
@@ -247,73 +251,73 @@ class CdkAwsCookbook407Stack(core.Stack):
 
         # outputs
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCId',
+            'VpcId',
             value=vpc.vpc_id
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'InstanceID',
+            'InstanceId',
             value=instance.instance_id
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'SourceRdsDatabaseId',
             value=source_rds_instance.instance_identifier
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'SourceRdsSecurityGroup',
             value=source_rds_security_group.security_group_id
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'SourceDbName',
             value=source_db_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'SourceRdsSecretArn',
             value=source_rds_instance.secret.secret_full_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'SourceRdsEndpoint',
             value=source_rds_instance.db_instance_endpoint_address
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'TargetRdsDatabaseId',
             value=target_rds_instance.instance_identifier
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'TargetRdsSecurityGroup',
             value=target_rds_security_group.security_group_id
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'TargetDbName',
             value=target_db_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'TargetRdsSecretArn',
             value=target_rds_instance.secret.secret_full_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'TargetRdsEndpoint',
             value=target_rds_instance.db_instance_endpoint_address
@@ -321,27 +325,26 @@ class CdkAwsCookbook407Stack(core.Stack):
 
         isolated_subnets = vpc.select_subnets(subnet_type=ec2.SubnetType.ISOLATED)
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'IsolatedSubnets',
             value=', '.join(map(str, isolated_subnets.subnet_ids))
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'LambdaArn',
             value=lambda_function.function_arn
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsSourceSecretName',
             value=source_rds_instance.secret.secret_name
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
             'RdsTargetSecretName',
             value=target_rds_instance.secret.secret_name
         )
-

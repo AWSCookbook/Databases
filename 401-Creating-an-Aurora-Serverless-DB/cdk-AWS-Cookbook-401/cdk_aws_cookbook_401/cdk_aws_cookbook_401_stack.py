@@ -1,16 +1,15 @@
+from constructs import Construct
 from aws_cdk import (
     aws_ec2 as ec2,
-    core,
     aws_iam as iam,
+    Stack,
+    CfnOutput,
 )
 
 
-class CdkAwsCookbook401Stack(core.Stack):
+class CdkAwsCookbook401Stack(Stack):
 
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
-
-    def __init__(self, scope: core.Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         isolated_subnets = ec2.SubnetConfiguration(
@@ -84,38 +83,37 @@ class CdkAwsCookbook401Stack(core.Stack):
             vpc=vpc,
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'InstanceID',
+            'InstanceId',
             value=instance.instance_id
         )
         # -------- End EC2 Helper ---------
 
         # outputs
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'VPCId',
+            'VpcId',
             value=vpc.vpc_id
         )
 
         isolated_subnets = vpc.select_subnets(subnet_type=ec2.SubnetType.ISOLATED)
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'Subnet1ID',
+            'SubnetId1',
             value=isolated_subnets.subnet_ids[0]
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'Subnet2ID',
+            'SubnetId2',
             value=isolated_subnets.subnet_ids[1]
         )
 
-        core.CfnOutput(
+        CfnOutput(
             self,
-            'InstanceSG',
+            'InstanceSg',
             value=instance.connections.security_groups[0].security_group_id
         )
-
