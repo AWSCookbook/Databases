@@ -34,7 +34,7 @@ aws ssm delete-parameter --name Cookbook408ClusterArn
 
 ### Detach the policy from the role:
 ```
-aws iam detach-role-policy --role-name $EC2RoleName \
+aws iam detach-role-policy --role-name $INSTANCE_ROLE_NAME \
 --policy-arn arn:aws:iam::$AWS_ACCOUNT_ID:policy/AWSCookbook408RDSDataPolicy
 ```
 

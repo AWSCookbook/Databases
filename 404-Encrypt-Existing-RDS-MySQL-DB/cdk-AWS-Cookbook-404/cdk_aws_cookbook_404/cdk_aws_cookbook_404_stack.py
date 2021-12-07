@@ -38,7 +38,7 @@ class CdkAwsCookbook404Stack(Stack):
 
         isolated_subnets = ec2.SubnetConfiguration(
             name="ISOLATED",
-            subnet_type=ec2.SubnetType.ISOLATED,
+            subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
             cidr_mask=24
         )
 
@@ -56,14 +56,14 @@ class CdkAwsCookbook404Stack(Stack):
             private_dns_enabled=True,
             subnets=ec2.SubnetSelection(
                 one_per_az=False,
-                subnet_type=ec2.SubnetType.ISOLATED
+                subnet_type=ec2.SubnetType.PRIVATE_ISOLATED
             ),
         )
 
         vpc.add_gateway_endpoint(
             's3GateWayEndPoint',
             service=ec2.GatewayVpcEndpointAwsService('s3'),
-            subnets=[ec2.SubnetSelection(subnet_type=ec2.SubnetType.ISOLATED)],
+            subnets=[ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED)],
         )
 
         subnet_group = rds.SubnetGroup(
@@ -73,7 +73,7 @@ class CdkAwsCookbook404Stack(Stack):
             vpc=vpc,
             vpc_subnets=ec2.SubnetSelection(
                 one_per_az=False,
-                subnet_type=ec2.SubnetType.ISOLATED
+                subnet_type=ec2.SubnetType.PRIVATE_ISOLATED
             )
         )
 
@@ -144,7 +144,7 @@ class CdkAwsCookbook404Stack(Stack):
             timeout=Duration.seconds(600),
             vpc=vpc,
             vpc_subnets=ec2.SubnetSelection(
-                subnet_type=ec2.SubnetType.ISOLATED
+                subnet_type=ec2.SubnetType.PRIVATE_ISOLATED
             )
         )
 
